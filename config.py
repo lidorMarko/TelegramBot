@@ -16,18 +16,26 @@ class Config:
     FIELD_DESCRIPTION = os.getenv("FIELD_DESCRIPTION", "description")
     FIELD_URL = os.getenv("FIELD_URL", "url")
     FIELD_FIRST_SEEN = os.getenv("FIELD_FIRST_SEEN", "firstSeenAt")
-    FIELD_POSTED = os.getenv("FIELD_POSTED", "posted")
+    FIELD_STATUS = os.getenv("FIELD_STATUS", "status")
     FIELD_JOB_HASH = os.getenv("FIELD_JOB_HASH", "jobHash")
 
     # Company field names
     FIELD_COMPANY_NAME = os.getenv("FIELD_COMPANY_NAME", "name")
     FIELD_LATEST_JOBS = os.getenv("FIELD_LATEST_JOBS", "latestJobs")
 
+    # Job status values
+    STATUS_PENDING = "PENDING_REVIEW"
+    STATUS_IN_REVIEW = "IN_REVIEW"
+    STATUS_APPROVED = "APPROVED"
+    STATUS_REJECTED = "REJECTED"
+    STATUS_SENT = "SENT"
+
     # Telegram
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-    TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
+    REVIEW_CHANNEL_ID = os.getenv("REVIEW_CHANNEL_ID")          # private group for reviewers
+    TELEGRAM_PROD_CHANNEL_ID = os.getenv("TELEGRAM_PROD_CHANNEL_ID")  # public channel for approved jobs
 
-    # Polling interval in seconds (for checking unposted jobs)
+    # Polling interval in seconds
     POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "30"))
 
     @classmethod
@@ -35,7 +43,8 @@ class Config:
         required = [
             ("MONGO_DATABASE", cls.MONGO_DATABASE),
             ("TELEGRAM_BOT_TOKEN", cls.TELEGRAM_BOT_TOKEN),
-            ("TELEGRAM_CHANNEL_ID", cls.TELEGRAM_CHANNEL_ID),
+            ("REVIEW_CHANNEL_ID", cls.REVIEW_CHANNEL_ID),
+            ("TELEGRAM_PROD_CHANNEL_ID", cls.TELEGRAM_PROD_CHANNEL_ID),
         ]
         missing = [name for name, value in required if not value]
         if missing:
