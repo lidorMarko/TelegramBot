@@ -5,10 +5,9 @@ load_dotenv()
 
 
 class Config:
-    # MongoDB
-    MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-    MONGO_DATABASE = os.getenv("MONGO_DATABASE")
-    MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "companies")
+    # JSON file paths (local storage, replacing MongoDB)
+    COMPANIES_JSON_PATH = os.getenv("COMPANIES_JSON_PATH", "../jobsense/data/companies.json")
+    REVIEW_QUEUE_JSON_PATH = os.getenv("REVIEW_QUEUE_JSON_PATH", "data/review_queue.json")
 
     # Job field names (embedded in latestJobs array)
     FIELD_TITLE = os.getenv("FIELD_TITLE", "title")
@@ -41,7 +40,6 @@ class Config:
     @classmethod
     def validate(cls):
         required = [
-            ("MONGO_DATABASE", cls.MONGO_DATABASE),
             ("TELEGRAM_BOT_TOKEN", cls.TELEGRAM_BOT_TOKEN),
             ("REVIEW_CHANNEL_ID", cls.REVIEW_CHANNEL_ID),
             ("TELEGRAM_PROD_CHANNEL_ID", cls.TELEGRAM_PROD_CHANNEL_ID),

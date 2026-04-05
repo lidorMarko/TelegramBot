@@ -26,22 +26,33 @@ class TelegramSender:
         return message
 
     async def send_for_review(self, bot: Bot, job: dict, company_name: str, queue_id: str):
-        """Send the job to the private review group with Approve / Reject buttons."""
-        keyboard = InlineKeyboardMarkup([[
-            InlineKeyboardButton("✅ Approve", callback_data=f"approve:{queue_id}"),
-            InlineKeyboardButton("❌ Reject",  callback_data=f"reject:{queue_id}"),
-        ]])
-        await bot.send_message(
+        """Send the job to the private review group with Approve / Reject / Udemy buttons."""
+        keyboard = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("✅ Approve", callback_data=f"approve:{queue_id}"),
+                InlineKeyboardButton("❌ Reject",  callback_data=f"reject:{queue_id}"),
+            ],
+            [
+                InlineKeyboardButton("🎓 הוסף קורס Udemy", callback_data=f"udemy:{queue_id}"),
+            ],
+        ])
+        return await bot.send_message(
             chat_id=Config.REVIEW_CHANNEL_ID,
             text=self.format_message(job, company_name),
             parse_mode="HTML",
             reply_markup=keyboard,
         )
 
-    async def send_to_public(self, bot: Bot, job: dict, company_name: str):
+    async def send_to_public(self, bot: Bot, job: dict, company_name: str, udemy_url: str = None):
         """Send an approved job to the public channel."""
+        keyboard = None
+        if udemy_url:
+            keyboard = InlineKeyboardMarkup([[
+                InlineKeyboardButton("🎓 הכינו את עצמכם לשאלות ראיון עבודה", url=udemy_url)
+            ]])
         await bot.send_message(
             chat_id=Config.TELEGRAM_PROD_CHANNEL_ID,
             text=self.format_message(job, company_name),
             parse_mode="HTML",
+            reply_markup=keyboard,
         )
