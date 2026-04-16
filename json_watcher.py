@@ -223,6 +223,7 @@ class JsonWatcher:
             "job_hash": job_hash,
             "created_at": datetime.utcnow().isoformat(),
             "udemy_url": None,
+            "hashtags": [],
             "review_message_id": None,
         }
         with self._queue_lock:
@@ -237,6 +238,17 @@ class JsonWatcher:
             for entry in queue:
                 if entry.get("id") == queue_id:
                     entry["udemy_url"] = url
+                    break
+            self._write_queue(queue)
+
+    def add_hashtag(self, queue_id: str, hashtag: str):
+        with self._queue_lock:
+            queue = self._read_queue()
+            for entry in queue:
+                if entry.get("id") == queue_id:
+                    tags = entry.setdefault("hashtags", [])
+                    if hashtag not in tags:
+                        tags.append(hashtag)
                     break
             self._write_queue(queue)
 

@@ -5,7 +5,7 @@ from config import Config
 
 class TelegramSender:
 
-    def format_message(self, job: dict, company_name: str) -> str:
+    def format_message(self, job: dict, company_name: str, hashtags: list = None) -> str:
         title = escape(job.get(Config.FIELD_TITLE, "לא צוין") or "לא צוין")
         location = escape(job.get(Config.FIELD_LOCATION, "") or "")
         url = job.get(Config.FIELD_URL, "") or ""
@@ -23,10 +23,14 @@ class TelegramSender:
         if url:
             message += f'\n🔗 <a href="{escape(url)}">לצפייה במשרה</a>'
 
+        if hashtags:
+            line = " ".join(f"#{t}" if not t.startswith("#") else t for t in hashtags)
+            message += f"\n\n{line}"
+
         return message
 
     async def send_for_review(self, bot: Bot, job: dict, company_name: str, queue_id: str):
-        """Send the job to the private review group with Approve / Reject / Udemy buttons."""
+        """Send the job to the private review group with Approve / Reject / Udemy / Hashtag buttons."""
         keyboard = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("✅ Approve", callback_data=f"approve:{queue_id}"),
@@ -34,6 +38,7 @@ class TelegramSender:
             ],
             [
                 InlineKeyboardButton("🎓 הוסף קורס Udemy", callback_data=f"udemy:{queue_id}"),
+                InlineKeyboardButton("🏷️ הוסף האשטאג", callback_data=f"hashtag:{queue_id}"),
             ],
         ])
         return await bot.send_message(
@@ -43,7 +48,7 @@ class TelegramSender:
             reply_markup=keyboard,
         )
 
-    async def send_to_public(self, bot: Bot, job: dict, company_name: str, udemy_url: str = None):
+    async def send_to_public(self, bot: Bot, job: dict, company_name: str, udemy_url: str = None, hashtags: list = None):
         """Send an approved job to the public channel."""
         keyboard = None
         if udemy_url:
@@ -52,7 +57,7 @@ class TelegramSender:
             ]])
         await bot.send_message(
             chat_id=Config.TELEGRAM_PROD_CHANNEL_ID,
-            text=self.format_message(job, company_name),
+            text=self.format_message(job, company_name, hashtags=hashtags),
             parse_mode="HTML",
             reply_markup=keyboard,
         )
