@@ -11,7 +11,7 @@ class TelegramSender:
         url = job.get(Config.FIELD_URL, "") or ""
         company = escape(company_name or "")
 
-        message = "\u200F🚀 <b>משרה חדשה</b>\n\n"
+        message = ""
         message += f"💼 <b>{title}</b>\n"
         message += f"🏢 {company}\n"
 
@@ -29,8 +29,12 @@ class TelegramSender:
 
         return message
 
-    async def send_for_review(self, bot: Bot, job: dict, company_name: str, queue_id: str):
-        """Send the job to the private review group with Approve / Reject / Udemy / Hashtag buttons."""
+    async def send_for_review(self, bot: Bot, job: dict, company_name: str, queue_id: str, hashtags: list = None, channel_id: str = None):
+        """Send the job to the review group with Approve / Reject / Udemy / Hashtag buttons."""
+        if channel_id is None:
+            channel_id = Config.REVIEW_CHANNEL_ID
+        count = len(hashtags) if hashtags else 0
+        hashtag_label = f"🏷️ {count} תגיות ✅" if count else "🏷️ הוסף האשטאג"
         keyboard = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("✅ Approve", callback_data=f"approve:{queue_id}"),
@@ -38,25 +42,27 @@ class TelegramSender:
             ],
             [
                 InlineKeyboardButton("🎓 הוסף קורס Udemy", callback_data=f"udemy:{queue_id}"),
-                InlineKeyboardButton("🏷️ הוסף האשטאג", callback_data=f"hashtag:{queue_id}"),
+                InlineKeyboardButton(hashtag_label, callback_data=f"hashtag:{queue_id}"),
             ],
         ])
         return await bot.send_message(
-            chat_id=Config.REVIEW_CHANNEL_ID,
-            text=self.format_message(job, company_name),
+            chat_id=channel_id,
+            text=self.format_message(job, company_name, hashtags=hashtags),
             parse_mode="HTML",
             reply_markup=keyboard,
         )
 
-    async def send_to_public(self, bot: Bot, job: dict, company_name: str, udemy_url: str = None, hashtags: list = None):
-        """Send an approved job to the public channel."""
+    async def send_to_public(self, bot: Bot, job: dict, company_name: str, channel_id: str = None, udemy_url: str = None, hashtags: list = None):
+        """Send an approved job to the specified public channel."""
+        if channel_id is None:
+            channel_id = Config.TELEGRAM_PROD_CHANNEL_ID
         keyboard = None
         if udemy_url:
             keyboard = InlineKeyboardMarkup([[
                 InlineKeyboardButton("🎓 הכינו את עצמכם לשאלות ראיון עבודה", url=udemy_url)
             ]])
         await bot.send_message(
-            chat_id=Config.TELEGRAM_PROD_CHANNEL_ID,
+            chat_id=channel_id,
             text=self.format_message(job, company_name, hashtags=hashtags),
             parse_mode="HTML",
             reply_markup=keyboard,

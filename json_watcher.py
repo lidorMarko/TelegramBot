@@ -46,6 +46,8 @@ class JsonWatcher:
         "data engineer", "data scientist", "data analyst",
         "analytics engineer", "big data",
         "etl", "data pipeline",
+        "database", "dba", "sql", "nosql",
+        "bi developer", "business intelligence",
 
         # AI / ML
         "machine learning", "ml engineer",
@@ -78,16 +80,34 @@ class JsonWatcher:
         "solution architect", "software architect",
         "tech lead", "technical lead",
         "principal engineer", "staff engineer",
+        "engineering manager", "vp engineering", "vp r&d", "cto",
+        "technical program manager", "tpm",
+
+        # Product (tech-adjacent)
+        "product manager", "technical product manager",
+        "product owner",
 
         # Research
         "r&d", "research engineer",
         "research scientist",
         "computer science",
 
+        # Game development
+        "game developer", "game engineer", "unity", "unreal",
+        "graphics engineer", "gpu",
+
+        # Blockchain / Web3
+        "blockchain", "web3", "smart contract", "solidity",
+
+        # Systems
+        "system engineer", "systems engineer",
+        "linux", "kernel",
+
         # Common programming languages
         "python", "java", "c++", "c#", "golang", "go",
         "typescript", "javascript", "node", "nodejs",
         "react", "angular", "vue",
+        "ruby", "scala", "kotlin", "swift", "rust", "php",
 
         # Hebrew
         "מפתח", "מפתחת", "מהנדס", "מהנדסת",
@@ -97,7 +117,24 @@ class JsonWatcher:
         "בדיקות", "בדיקות תוכנה",
         "אוטומציה", "בדיקות אוטומציה",
         "דאטה", "נתונים",
-        "למידת מכונה", "בינה מלאכותית"
+        "למידת מכונה", "בינה מלאכותית",
+        "מנהל מוצר", "מנהל הנדסה",
+    }
+
+    ELECTRONICS_KEYWORDS = {
+        # English — electrical/electronics engineering
+        "electrical engineer", "electronics engineer",
+        "electrical engineering", "electronics engineering",
+        "circuit design", "pcb", "pcb design", "pcb designer",
+        "power electronics", "power systems", "power engineer",
+        "power supply", "power management",
+        "plc", "scada", "control engineer", "control systems",
+        "rf engineer", "rf design", "antenna", "signal processing",
+        "semiconductor", "analog", "analog design",
+        "hvac", "electromechanical",
+        # Hebrew
+        "חשמל", "אלקטרוניקה", "מהנדס חשמל", "מהנדסת חשמל",
+        "מעגל מודפס", "מעגלים",
     }
 
     ISRAEL_TERMS = {
@@ -115,6 +152,16 @@ class JsonWatcher:
     def is_cs_job(self, job: dict) -> bool:
         title = (job.get(Config.FIELD_TITLE, "") or "").lower()
         return any(kw in title for kw in self.CS_KEYWORDS)
+
+    def is_electronics_job(self, job: dict) -> bool:
+        title = (job.get(Config.FIELD_TITLE, "") or "").lower()
+        return any(kw in title for kw in self.ELECTRONICS_KEYWORDS)
+
+    def get_job_category(self, job: dict) -> str:
+        """Returns 'electronics' or 'cs'."""
+        if self.is_electronics_job(job):
+            return "electronics"
+        return "cs"
 
     def is_israel_or_remote(self, job: dict) -> bool:
         location = job.get(Config.FIELD_LOCATION, "") or ""
@@ -215,7 +262,91 @@ class JsonWatcher:
 
     # ── Review queue ──────────────────────────────────────────────────────────
 
-    def add_to_review_queue(self, company_id: str, job_hash: str) -> str:
+    # keyword fragments → hashtag (longest/most-specific first wins)
+    HASHTAG_MAP = [
+        # Languages
+        (["typescript"], "typescript"),
+        (["javascript", " js "], "javascript"),
+        (["python"], "python"),
+        (["golang", "go developer", "go engineer", " go "], "golang"),
+        (["kotlin"], "kotlin"),
+        (["swift"], "swift"),
+        (["rust"], "rust"),
+        (["scala"], "scala"),
+        (["ruby"], "ruby"),
+        (["php"], "php"),
+        (["c++", "c plus plus"], "cpp"),
+        (["c#", "csharp", ".net", "dotnet"], "dotnet"),
+        (["java ", "java,", "java-", "java/"], "java"),
+        # Frameworks / runtimes
+        (["react native"], "reactnative"),
+        (["react"], "react"),
+        (["angular"], "angular"),
+        (["vue"], "vue"),
+        (["node.js", "nodejs", "node "], "nodejs"),
+        (["next.js", "nextjs"], "nextjs"),
+        (["django", "flask", "fastapi"], "python"),
+        (["spring"], "java"),
+        (["flutter"], "flutter"),
+        # Role types
+        (["fullstack", "full-stack", "full stack"], "fullstack"),
+        (["backend", "back-end", "back end", "server side", "server-side"], "backend"),
+        (["frontend", "front-end", "front end", "ui developer", "ui engineer"], "frontend"),
+        (["mobile developer", "mobile engineer", "mobile "], "mobile"),
+        (["android"], "android"),
+        (["ios developer", "ios engineer"], "ios"),
+        # DevOps / Cloud / Infra
+        (["devsecops", "devops"], "devops"),
+        (["site reliability", " sre "], "sre"),
+        (["platform engineer"], "platform"),
+        (["kubernetes", " k8s "], "kubernetes"),
+        (["docker"], "docker"),
+        (["terraform", "ansible"], "iac"),
+        (["aws", "amazon web services"], "aws"),
+        (["google cloud", " gcp "], "gcp"),
+        (["azure"], "azure"),
+        (["cloud engineer", "cloud architect"], "cloud"),
+        # Data
+        (["data engineer", "data engineering"], "dataengineering"),
+        (["data scientist"], "datascience"),
+        (["data analyst", "analytics engineer"], "dataanalytics"),
+        (["big data", "etl", "data pipeline"], "data"),
+        # AI / ML
+        (["machine learning", "ml engineer", "ml developer"], "machinelearning"),
+        (["deep learning", "computer vision", " nlp ", "generative ai", " llm "], "ai"),
+        (["ai engineer", "ai developer", "artificial intelligence"], "ai"),
+        # Security
+        (["appsec", "application security"], "appsec"),
+        (["penetration", "pentester", "pen test"], "pentest"),
+        (["cybersecurity", "cyber security", "security engineer", "security researcher"], "cybersecurity"),
+        (["network security"], "networksecurity"),
+        # QA
+        (["qa automation", "test automation", "automation engineer"], "qaautomation"),
+        (["qa engineer", "quality assurance", "test engineer"], "qa"),
+        # Embedded / HW
+        (["embedded", "firmware"], "embedded"),
+        (["fpga", "vlsi", "rtl", "hardware engineer"], "hardware"),
+        # Work mode
+        (["remote"], "remote"),
+        (["hybrid"], "hybrid"),
+    ]
+
+    def extract_hashtags_from_job(self, job: dict) -> list[str]:
+        title = (job.get(Config.FIELD_TITLE, "") or "").lower()
+        description = (job.get(Config.FIELD_DESCRIPTION, "") or "").lower()
+        text = f" {title} {description} "  # pad with spaces for whole-word matching
+
+        tags: list[str] = []
+        seen: set[str] = set()
+        for keywords, hashtag in self.HASHTAG_MAP:
+            if hashtag in seen:
+                continue
+            if any(kw in text for kw in keywords):
+                tags.append(hashtag)
+                seen.add(hashtag)
+        return tags
+
+    def add_to_review_queue(self, company_id: str, job_hash: str, initial_hashtags: list | None = None, category: str = "cs") -> str:
         queue_id = str(uuid.uuid4())
         entry = {
             "id": queue_id,
@@ -223,8 +354,9 @@ class JsonWatcher:
             "job_hash": job_hash,
             "created_at": datetime.utcnow().isoformat(),
             "udemy_url": None,
-            "hashtags": [],
+            "hashtags": initial_hashtags or [],
             "review_message_id": None,
+            "category": category,
         }
         with self._queue_lock:
             queue = self._read_queue()
@@ -273,8 +405,8 @@ class JsonWatcher:
 
     # ── Main loop (called by Application job_queue) ───────────────────────────
 
-    async def process_pending_jobs(self, bot):
-        """Poll companies.json for PENDING_REVIEW jobs and send them to the review channel."""
+    async def process_pending_jobs(self, bot, category: str, review_channel_id: str):
+        """Poll companies.json for PENDING_REVIEW jobs matching `category` and send them to review."""
         from telegram_sender import TelegramSender
         sender = TelegramSender()
 
@@ -285,19 +417,26 @@ class JsonWatcher:
             for job in company.get(Config.FIELD_LATEST_JOBS, []):
                 job_hash = job.get(Config.FIELD_JOB_HASH)
 
-                # Auto-reject jobs that don't pass our filters
-                if not self.is_israel_or_remote(job) or not self.is_cs_job(job):
+                job_category = self.get_job_category(job)
+
+                # Auto-reject jobs that don't match any known category (only once, by CS bot)
+                if category == "cs" and not self.is_cs_job(job) and not self.is_electronics_job(job):
                     if job_hash:
                         self.update_job_status(company_id, job_hash, Config.STATUS_REJECTED)
+                    continue
+
+                # Each bot only handles its own category
+                if job_category != category:
                     continue
 
                 # Claim the job (prevents duplicate review messages if bot restarts)
                 if not self.try_claim_job(company_id, job_hash):
                     continue
 
-                queue_id = self.add_to_review_queue(company_id, job_hash)
+                auto_hashtags = self.extract_hashtags_from_job(job)
+                queue_id = self.add_to_review_queue(company_id, job_hash, initial_hashtags=auto_hashtags, category=category)
                 try:
-                    message = await sender.send_for_review(bot, job, company_name, queue_id)
+                    message = await sender.send_for_review(bot, job, company_name, queue_id, hashtags=auto_hashtags, channel_id=review_channel_id)
                     self.set_review_message_id(queue_id, message.message_id)
                 except Exception as e:
                     print(f"Failed to send for review '{job.get(Config.FIELD_TITLE)}': {e}")

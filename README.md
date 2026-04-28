@@ -3,6 +3,7 @@
 Polls a MongoDB database for new job listings and sends notifications to a Telegram channel.
 
 ## Setup
+python -m venv venv
 venv\Scripts\activate
 1. Install dependencies:
    ```bash

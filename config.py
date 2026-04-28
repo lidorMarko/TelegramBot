@@ -29,10 +29,15 @@ class Config:
     STATUS_REJECTED = "REJECTED"
     STATUS_SENT = "SENT"
 
-    # Telegram
+    # Telegram — main bot (CS jobs)
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-    REVIEW_CHANNEL_ID = os.getenv("REVIEW_CHANNEL_ID")          # private group for reviewers
-    TELEGRAM_PROD_CHANNEL_ID = os.getenv("TELEGRAM_PROD_CHANNEL_ID")  # public channel for approved jobs
+    REVIEW_CHANNEL_ID = os.getenv("REVIEW_CHANNEL_ID")
+    TELEGRAM_PROD_CHANNEL_ID = os.getenv("TELEGRAM_PROD_CHANNEL_ID")
+
+    # Telegram — electronics bot
+    TELEGRAM_ELECTRONICS_BOT_TOKEN = os.getenv("TELEGRAM_ELECTRONICS_BOT_TOKEN")
+    TELEGRAM_ELECTRONICS_REVIEW_CHANNEL_ID = os.getenv("TELEGRAM_ELECTRONICS_REVIEW_CHANNEL_ID")
+    TELEGRAM_ELECTRONICS_CHANNEL_ID = os.getenv("TELEGRAM_ELECTRONICS_CHANNEL_ID")
 
     # Polling interval in seconds
     POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "30"))
@@ -43,6 +48,9 @@ class Config:
             ("TELEGRAM_BOT_TOKEN", cls.TELEGRAM_BOT_TOKEN),
             ("REVIEW_CHANNEL_ID", cls.REVIEW_CHANNEL_ID),
             ("TELEGRAM_PROD_CHANNEL_ID", cls.TELEGRAM_PROD_CHANNEL_ID),
+            ("TELEGRAM_ELECTRONICS_BOT_TOKEN", cls.TELEGRAM_ELECTRONICS_BOT_TOKEN),
+            ("TELEGRAM_ELECTRONICS_REVIEW_CHANNEL_ID", cls.TELEGRAM_ELECTRONICS_REVIEW_CHANNEL_ID),
+            ("TELEGRAM_ELECTRONICS_CHANNEL_ID", cls.TELEGRAM_ELECTRONICS_CHANNEL_ID),
         ]
         missing = [name for name, value in required if not value]
         if missing:
