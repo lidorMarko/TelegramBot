@@ -122,19 +122,88 @@ class JsonWatcher:
     }
 
     ELECTRONICS_KEYWORDS = {
-        # English — electrical/electronics engineering
+        # English — roles
         "electrical engineer", "electronics engineer",
         "electrical engineering", "electronics engineering",
-        "circuit design", "pcb", "pcb design", "pcb designer",
+        "electro-optics engineer", "electro-optics",
+        "avionics engineer", "avionics",
+        "instrumentation engineer", "instrumentation",
+        "hardware engineer",
+
+        # Circuit & PCB
+        "circuit design", "circuit engineer",
+        "pcb", "pcb design", "pcb designer", "pcb layout",
+        "schematic design", "layout engineer",
+        "analog design", "analog engineer",
+        "mixed signal", "mixed-signal",
+        "digital design", "digital engineer",
+        "asic", "asic design", "asic verification",
+        "fpga", "fpga engineer", "fpga developer",
+        "vlsi", "rtl design",
+        "verilog", "vhdl",
+        "chip design", "chip verification",
+
+        # Power
         "power electronics", "power systems", "power engineer",
         "power supply", "power management",
-        "plc", "scada", "control engineer", "control systems",
-        "rf engineer", "rf design", "antenna", "signal processing",
-        "semiconductor", "analog", "analog design",
-        "hvac", "electromechanical",
-        # Hebrew
-        "חשמל", "אלקטרוניקה", "מהנדס חשמל", "מהנדסת חשמל",
+        "power conversion", "inverter design",
+        "solar engineer", "renewable energy engineer",
+        "battery engineer", "energy storage",
+        "motor drive", "motor control",
+        "high voltage", "low voltage",
+
+        # Control & Automation
+        "plc", "scada", "dcs",
+        "control engineer", "control systems",
+        "automation engineer", "automation technician",
+        "robotics engineer", "robot programmer",
+        "motion control", "servo engineer",
+        "industrial automation", "factory automation",
+        "mechatronics", "mechatronic engineer",
+
+        # RF / Wireless / Signal
+        "rf engineer", "rf design", "rf developer",
+        "antenna engineer", "antenna design",
+        "signal processing", "dsp engineer",
+        "radar engineer", "radar systems",
+        "microwave engineer",
+        "communications engineer", "wireless engineer",
+        "5g engineer", "lte engineer",
+        "baseband engineer",
+
+        # Semiconductor / IC
+        "semiconductor", "semiconductor engineer",
+        "ic design", "ic verification",
+        "process engineer", "fab engineer",
+        "characterization engineer",
+
+        # Embedded / Firmware (hardware-side)
+        "embedded hardware", "embedded systems engineer",
+        "firmware engineer",
+        "bsp developer",
+
+        # Electromechanical / Systems
+        "electromechanical", "electro-mechanical",
+        "hvac", "hvac engineer",
+        "field service engineer",
+
+        # Hebrew — roles & fields
+        "חשמל", "אלקטרוניקה",
+        "מהנדס חשמל", "מהנדסת חשמל",
+        "מהנדס אלקטרוניקה", "מהנדסת אלקטרוניקה",
+        "מהנדס מעגלים", "תכנון מעגלים",
         "מעגל מודפס", "מעגלים",
+        "מהנדס אוטומציה", "אוטומציה תעשייתית",
+        "מהנדס כוח", "אנרגיה מתחדשת",
+        "מהנדס בקרה", "מערכות בקרה",
+        "פלק", "סקאדה",
+        "מהנדס rf", "עיבוד אותות",
+        "מהנדס רדאר", "מהנדס תקשורת",
+        "סמיקונדקטור", "עיצוב שבבים",
+        "אלקטרו-אופטיקה", "אביוניקה",
+        "מכטרוניקה", "רובוטיקה",
+        "מהנדס חומרה", "פירמוור",
+        "מהנדס שדה",
     }
 
     ISRAEL_TERMS = {
