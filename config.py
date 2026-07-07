@@ -1,13 +1,15 @@
 import os
+from urllib.parse import quote as _url_quote
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
 class Config:
-    # JSON file paths (local storage, replacing MongoDB)
-    COMPANIES_JSON_PATH = os.getenv("COMPANIES_JSON_PATH", "../jobsense/data/companies.json")
-    REVIEW_QUEUE_JSON_PATH = os.getenv("REVIEW_QUEUE_JSON_PATH", "data/review_queue.json")
+    # MongoDB
+    MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    MONGO_DATABASE = os.getenv("MONGO_DATABASE", "jobsense")
+    MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "companies")
 
     # Job field names (embedded in latestJobs array)
     FIELD_TITLE = os.getenv("FIELD_TITLE", "title")
@@ -38,12 +40,29 @@ class Config:
     TELEGRAM_ELECTRONICS_BOT_TOKEN = os.getenv("TELEGRAM_ELECTRONICS_BOT_TOKEN")
     TELEGRAM_ELECTRONICS_REVIEW_CHANNEL_ID = os.getenv("TELEGRAM_ELECTRONICS_REVIEW_CHANNEL_ID")
     TELEGRAM_ELECTRONICS_CHANNEL_ID = os.getenv("TELEGRAM_ELECTRONICS_CHANNEL_ID")
+    TELEGRAM_ELECTRONICS_CHANNEL_URL = os.getenv("TELEGRAM_ELECTRONICS_CHANNEL_URL", "")
+
+    # Telegram — EU bot (optional; bot is skipped if any field is missing)
+    TELEGRAM_BACKEND_EU_BOT_TOKEN = os.getenv("TELEGRAM_BACKEND_EU_BOT_TOKEN")
+    TELEGRAM_BACKEND_EU_REVIEW_CHANNEL_ID = os.getenv("TELEGRAM_BACKEND_EU_REVIEW_CHANNEL_ID")
+    TELEGRAM_BACKEND_EU_CHANNEL_ID = os.getenv("TELEGRAM_BACKEND_EU_CHANNEL_ID")
+
+    # Optional footer CTA button added to public messages when enabled during review
+    _FOOTER_PREFILL = _url_quote(
+        "היי, ברצוני להוסיף חברה למאגר החברות של הבוט.\n"
+        "הנה קישור לאתר המשרות של החברה: "
+    )
+    FOOTER_MESSAGE = os.getenv("FOOTER_MESSAGE", "📌 לחצו להוספת חברה למאגר")
+    FOOTER_URL = os.getenv("FOOTER_URL", f"tg://resolve?domain=DevJobsILBot&text={_FOOTER_PREFILL}")
+    FOOTER_MESSAGE_ELECTRONICS = os.getenv("FOOTER_MESSAGE_ELECTRONICS", "📌 לחצו להוספת חברה למאגר")
+    FOOTER_URL_ELECTRONICS = os.getenv("FOOTER_URL_ELECTRONICS", f"tg://resolve?domain=ElectroJobsBot&text={_FOOTER_PREFILL}")
 
     # Polling interval in seconds
     POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "30"))
 
     @classmethod
     def validate(cls):
+        # EU bot vars are optional — missing ones just disable that bot at startup.
         required = [
             ("TELEGRAM_BOT_TOKEN", cls.TELEGRAM_BOT_TOKEN),
             ("REVIEW_CHANNEL_ID", cls.REVIEW_CHANNEL_ID),
