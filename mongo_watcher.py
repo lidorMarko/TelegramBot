@@ -431,6 +431,8 @@ class MongoWatcher:
             "cross_promo": False,
             "footer_message": False,
             "donation": False,
+            "cta_text": None,
+            "cta_url": None,
             "review_message_id": None,
             "category": category,
             "job_snapshot": job or {},
@@ -524,6 +526,15 @@ class MongoWatcher:
             self.review_queue.update_one(
                 {"_id": ObjectId(queue_id)},
                 {"$addToSet": {"hashtags": hashtag}},
+            )
+        except Exception:
+            pass
+
+    def set_cta(self, queue_id: str, text: str, url: str):
+        try:
+            self.review_queue.update_one(
+                {"_id": ObjectId(queue_id)},
+                {"$set": {"cta_text": text, "cta_url": url}},
             )
         except Exception:
             pass
