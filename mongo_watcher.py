@@ -438,6 +438,7 @@ class MongoWatcher:
             "job_snapshot": job or {},
             "company_name_snapshot": company_name or "",
             "target_channel_id": target_channel_id,
+            "scheduled_send_at": None,
         })
         return str(result.inserted_id)
 
@@ -547,6 +548,25 @@ class MongoWatcher:
             )
         except Exception:
             pass
+
+    def set_scheduled_send(self, queue_id: str, when: datetime | None):
+        try:
+            self.review_queue.update_one(
+                {"_id": ObjectId(queue_id)},
+                {"$set": {"scheduled_send_at": when}},
+            )
+        except Exception:
+            pass
+
+    def get_scheduled_entries(self, category: str) -> list[dict]:
+        """Entries with a pending scheduled send for this bot's category, for restart recovery."""
+        entries = list(self.review_queue.find({
+            "category": category,
+            "scheduled_send_at": {"$ne": None},
+        }))
+        for entry in entries:
+            entry["id"] = str(entry["_id"])
+        return entries
 
     # ── Auto-approve companies ────────────────────────────────────────────────
 

@@ -41,11 +41,13 @@ class TelegramSender:
         rows = []
         if url and url.startswith(("http://", "https://")):
             rows.append([InlineKeyboardButton(view_label, url=url)])
+        schedule_label = "🕒 Schedule Send" if english_only else "🕒 תזמן שליחה"
         rows += [
             [
                 InlineKeyboardButton("✅ Approve", callback_data=f"approve:{queue_id}"),
                 InlineKeyboardButton("❌ Reject",  callback_data=f"reject:{queue_id}"),
             ],
+            [InlineKeyboardButton(schedule_label, callback_data=f"sched_menu:{queue_id}")],
             [
                 InlineKeyboardButton(udemy_label, callback_data=f"udemy:{queue_id}"),
                 InlineKeyboardButton(hashtag_label, callback_data=f"hashtag:{queue_id}"),
